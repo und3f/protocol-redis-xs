@@ -5,13 +5,12 @@ use ExtUtils::Depends;
 
 my $pkg = ExtUtils::Depends->new("Protocol::Redis::XS", "XS::Object::Magic");
 $pkg->set_inc("-Ihiredis");
+$pkg->set_libs("-lhiredis");
 my %dep = $pkg->get_makefile_vars;
 
 # Workaround bugs in the toolchain so we can actually build things in
 # directories.
 my $my_xs = q[XS$(OBJ_EXT)];
-my @hiredis_files = map "$_\$(OBJ_EXT)", qw(hiredis sds net);
-my $hiredis_obj = join " ", map 'hiredis/' . $_, @hiredis_files;
 
 WriteMakefile(
   NAME          => 'Protocol::Redis::XS',
@@ -39,9 +38,10 @@ WriteMakefile(
   },
 
   INC      => $dep{INC},
+  LIBS     => $dep{LIBS},
   TYPEMAPS => $dep{TYPEMAPS},
-  OBJECT   => "$my_xs $hiredis_obj",
-  LDFROM   => "$my_xs " . join(" ", @hiredis_files),
+  OBJECT   => "$my_xs",
+  LDFROM   => "$my_xs",
 
   META_MERGE => {
     resources        => {
@@ -49,3 +49,4 @@ WriteMakefile(
     }
   }
 );
+
